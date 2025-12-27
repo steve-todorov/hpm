@@ -86,7 +86,7 @@ jobs:
         with:
           organization: ${{ vars.PULUMI_ORG }}
           requested-token-type: urn:pulumi:token-type:access_token:personal
-          scope: user:USER_NAME
+          scope: user:steve-todorov
 
       - name: "[pulumi] Prepare stack"
         uses: pulumi/actions@v6
