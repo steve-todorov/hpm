@@ -88,36 +88,32 @@ jobs:
           requested-token-type: urn:pulumi:token-type:access_token:personal
           scope: user:steve-todorov
 
-      - name: "[pulumi] Prepare stack"
-        uses: pulumi/actions@v6
-        if: steps.stack.outputs.skip != 'true'
-        env:
-          PULUMI_ORG: ${{ vars.PULUMI_ORG }}
-          PULUMI_PROJECT: ${{ vars.PULUMI_PROJECT }}
-          STACK: ${{ steps.stack.outputs.stack }}
-        with:
-          command: -C infra stack select --create "${PULUMI_ORG}/${PULUMI_PROJECT}/${STACK}"
-
       - name: "[pulumi] preview"
         uses: pulumi/actions@v6
         if: steps.stack.outputs.skip != 'true'
         env:
-          PULUMI_ORG: ${{ vars.PULUMI_ORG }}
-          PULUMI_PROJECT: ${{ vars.PULUMI_PROJECT }}
-          STACK: ${{ steps.stack.outputs.stack }}
           # pulumi-github provider auth
           GITHUB_OWNER: ${{ github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
         with:
-          command: -C infra preview --stack "${PULUMI_ORG}/${PULUMI_PROJECT}/${STACK}"
+          command: preview
+          work-dir: infra
+          stack-name: ${{ vars.PULUMI_ORG }}/${{ vars.PULUMI_PROJECT }}/${{ steps.stack.outputs.stack }}
+          upsert: true
+          diff: true
+          comment-on-summary: true
 
       - name: "[pulumi] up"
-        if: steps.stack.outputs.skip != 'true'
         uses: pulumi/actions@v6
-        with:
-          command: -C infra up --stack "${PULUMI_ORG}/${PULUMI_PROJECT}/${STACK}"
-          always-include-summary: 'true'
+        if: steps.stack.outputs.skip != 'true'
         env:
           # pulumi-github provider auth
           GITHUB_OWNER: ${{ github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
+        with:
+          command: up
+          work-dir: infra
+          stack-name: ${{ vars.PULUMI_ORG }}/${{ vars.PULUMI_PROJECT }}/${{ steps.stack.outputs.stack }}
+          upsert: true
+          comment-on-summary: true
+          always-include-summary: "true"
