@@ -1,0 +1,3 @@
+name: steve-todorov__hpm
+runtime: python
+description: Deploy hello-world to Kubernetes and manage GitHub Environments per stack.

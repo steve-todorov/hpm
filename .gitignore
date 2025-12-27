@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+infra/rendered/
+.DS_Store
+.idea/
