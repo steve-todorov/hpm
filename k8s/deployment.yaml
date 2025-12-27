@@ -20,6 +20,8 @@ spec:
       labels:
         app: hello-world
     spec:
+      imagePullSecrets:
+        - name: ghcr-pull-secret
       containers:
         - name: hello-world
           image: {{IMAGE}}

@@ -1,3 +1,5 @@
+import base64
+import json
 import os
 from pathlib import Path
 
@@ -21,15 +23,55 @@ owner, repo = repo_full.split("/", 1)
 image = f"ghcr.io/{repo_full}:{environment}"
 namespace = f"hello-world-{environment}"
 
+# Pulumi uses the same kubeconfig kubectl uses (e.g. ~/.kube/config)
+k8s_provider = k8s.Provider("k8s")
+
+# 0) Ensure Namespace exists (Secret must be in same namespace as the Pod)
+ns = k8s.core.v1.Namespace(
+    f"ns-{environment}",
+    metadata=k8s.meta.v1.ObjectMetaArgs(name=namespace),
+    opts=ResourceOptions(provider=k8s_provider, protect=is_critical),
+)
+
 # 1) Manage GitHub Environment (created/destroyed with the stack)
-# Requires GitHub provider auth via env vars (GITHUB_TOKEN, GITHUB_OWNER) or provider config.
-gh_env = github.RepositoryEnvironment( f"gh-env-{environment}",
+gh_env = github.RepositoryEnvironment(
+    f"gh-env-{environment}",
     environment=environment,
     repository=repo,
     opts=ResourceOptions(protect=is_critical),
 )
 
-# 2) Deploy K8s YAML from template (rendered with ENV + image tag)
+# 2) Create GHCR imagePull Secret in the namespace
+cfg = pulumi.Config()
+ghcr_username = cfg.get("ghcrUsername") or owner
+ghcr_token = cfg.require_secret("ghcrToken")  # store with: pulumi config set --secret ghcrToken ...
+
+dockerconfigjson = ghcr_token.apply(
+    lambda tok: json.dumps(
+        {
+            "auths": {
+                "ghcr.io": {
+                    "username": ghcr_username,
+                    "password": tok,
+                    "auth": base64.b64encode(f"{ghcr_username}:{tok}".encode()).decode(),
+                }
+            }
+        }
+    )
+)
+
+pull_secret = k8s.core.v1.Secret(
+    f"ghcr-pull-secret-{environment}",
+    metadata=k8s.meta.v1.ObjectMetaArgs(
+        name="ghcr-pull-secret",
+        namespace=ns.metadata["name"],
+    ),
+    type="kubernetes.io/dockerconfigjson",
+    string_data={".dockerconfigjson": dockerconfigjson},
+    opts=ResourceOptions(provider=k8s_provider, depends_on=[ns], protect=is_critical),
+)
+
+# 3) Deploy K8s YAML from template (rendered with ENV + image tag)
 root = Path(__file__).resolve().parents[1]
 template_path = root / "k8s" / "deployment.yaml"
 
@@ -45,13 +87,14 @@ rendered = (
 )
 rendered_path.write_text(rendered, encoding="utf-8")
 
-# Pulumi uses the same kubeconfig kubectl uses (e.g. ~/.kube/config)
-k8s_provider = k8s.Provider("k8s")
-
 app = ConfigFile(
     "hello-world-yaml",
     file=str(rendered_path),
-    opts=ResourceOptions(provider=k8s_provider, protect=is_critical, depends_on=[gh_env]),
+    opts=ResourceOptions(
+        provider=k8s_provider,
+        protect=is_critical,
+        depends_on=[gh_env, pull_secret],  # ensure env + secret exist before workload apply
+    ),
 )
 
 pulumi.export("environment", environment)

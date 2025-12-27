@@ -40,6 +40,16 @@ Repo Secrets:
    export GITHUB_REPOSITORY=steve-todorov/hpm
    export GITHUB_TOKEN=<token>
    pulumi login
-   pulumi -C infra stack select --create "steve-todorov__hpm/staging-main"
+   pulumi env init "steve-todorov/steve-todorov__hpm/common"
+   pulumi env edit "steve-todorov/steve-todorov__hpm/common"
+   Put this content:
+   values:
+     pulumiConfig:
+       ghcrUsername: steve-todorov
+       ghcrToken:
+         fn::secret: YOUR_TOKEN_HERE
+   pulumi -C infra stack select --create "steve-todorov/steve-todorov__hpm/staging-main"
+   pulumi -C infra config env add --yes "steve-todorov__hpm/common"
    pulumi -C infra up
    ```
+

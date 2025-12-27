@@ -1,3 +1,9 @@
 name: steve-todorov__hpm
 runtime: python
 description: Deploy hello-world to Kubernetes and manage GitHub Environments per stack.
+config:
+  ghcrUsername: steve-todorov
+  ghcrToken:
+    type: string
+    secret: true
+    description: GHCR pull token used in k8s (<PAT_with_read:packages>)
