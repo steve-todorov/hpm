@@ -81,34 +81,43 @@ jobs:
         env:
           KUBECONFIG_CONTENT: ${{ secrets.KUBECONFIG }}
 
-      - name: Install Pulumi CLI
+      - uses: pulumi/auth-actions@v1
         if: steps.stack.outputs.skip != 'true'
-        uses: pulumi/actions@v6
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+        with:
+          organization: ${{ vars.PULUMI_ORG }}
+          requested-token-type: urn:pulumi:token-type:access_token:personal
+          scope: user:USER_NAME
 
-      - name: Select (or create) stack
+      - name: "[pulumi] Prepare stack"
+        uses: pulumi/actions@v6
         if: steps.stack.outputs.skip != 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          pulumi login
-          pulumi -C infra stack select --create "${PULUMI_ORG}/${PULUMI_PROJECT}/${STACK}"
         env:
           PULUMI_ORG: ${{ vars.PULUMI_ORG }}
-          STACK: ${{ steps.stack.outputs.stack }}
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           PULUMI_PROJECT: ${{ vars.PULUMI_PROJECT }}
+          STACK: ${{ steps.stack.outputs.stack }}
+        with:
+          command: -C infra stack select --create "${PULUMI_ORG}/${PULUMI_PROJECT}/${STACK}"
 
-      - name: Pulumi up
+      - name: "[pulumi] preview"
+        uses: pulumi/actions@v6
+        if: steps.stack.outputs.skip != 'true'
+        env:
+          PULUMI_ORG: ${{ vars.PULUMI_ORG }}
+          PULUMI_PROJECT: ${{ vars.PULUMI_PROJECT }}
+          STACK: ${{ steps.stack.outputs.stack }}
+          # pulumi-github provider auth
+          GITHUB_OWNER: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
+        with:
+          command: -C infra preview --stack "${PULUMI_ORG}/${PULUMI_PROJECT}/${STACK}"
+
+      - name: "[pulumi] up"
         if: steps.stack.outputs.skip != 'true'
         uses: pulumi/actions@v6
         with:
-          command: up
-          work-dir: infra
-          stack-name: ${{ vars.PULUMI_ORG }}/${{ steps.stack.outputs.stack }}
+          command: -C infra up --stack "${PULUMI_ORG}/${PULUMI_PROJECT}/${STACK}"
+          always-include-summary: 'true'
         env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           # pulumi-github provider auth
           GITHUB_OWNER: ${{ github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
