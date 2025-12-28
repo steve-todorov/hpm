@@ -100,18 +100,9 @@ jobs:
         uses: pulumi/actions@v6
         with:
           command: destroy
+          remove: true
           work-dir: infra
           stack-name: ${{ vars.PULUMI_ORG }}/${{ vars.PULUMI_PROJECT }}/${{ steps.stack.outputs.stack }}
           comment-on-summary: true
         env:
           GITHUB_OWNER: ${{ github.repository_owner }}
-
-      - name: Remove stack state
-        if: steps.stack.outputs.skip != 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          pulumi -C infra stack rm --yes "${ORG}/${STACK}"
-        env:
-          ORG: ${{ vars.PULUMI_ORG }}
-          STACK: ${{ steps.stack.outputs.stack }}
