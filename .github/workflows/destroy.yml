@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   destroy:
-    if: github.event.ref_type == 'branch'
+    if: github.event.ref_type == 'branch' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     steps:
