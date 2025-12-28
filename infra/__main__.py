@@ -81,11 +81,14 @@ rendered_dir = Path(__file__).resolve().parent / "rendered"
 rendered_dir.mkdir(exist_ok=True)
 rendered_path = rendered_dir / f"deployment.{environment}.yaml"
 
+case_id = cfg.require("case_id")
+
 template = template_path.read_text(encoding="utf-8")
 rendered = (
     template.replace("{{ENVIRONMENT}}", environment)
     .replace("{{NAMESPACE}}", namespace)
     .replace("{{IMAGE}}", image)
+    .replace("{{CASE_ID}}", case_id)
 )
 rendered_path.write_text(rendered, encoding="utf-8")
 

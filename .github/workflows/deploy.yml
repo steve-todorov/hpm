@@ -31,10 +31,13 @@ jobs:
 
           if [[ "$ref_name" == "main" ]]; then
             stack="staging-main"
+            case_id="staging-main"
           elif [[ "$ref_name" == "production" ]]; then
             stack="production"
+            case_id="production"
           elif [[ "$ref_name" =~ ^([0-9]+)-.*$ ]]; then
             stack="staging-${BASH_REMATCH[1]}"
+            case_id="${BASH_REMATCH[1]}"
           else
             echo "skip=true" >> "$GITHUB_OUTPUT"
             exit 0
@@ -99,6 +102,8 @@ jobs:
           cat > "infra/Pulumi.${STACK}.yaml" <<EOF
           environment:
             - ${PROJECT}/common
+          config:
+            case_id: ${{ steps.stack.outputs.case_id }}
           EOF
           cat infra/Pulumi.${STACK}.yaml
 

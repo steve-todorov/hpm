@@ -6,24 +6,24 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello-world
+  name: hello-world-{{CASE_ID}}
   namespace: {{NAMESPACE}}
   labels:
-    app: hello-world
+    app: hello-world-{{CASE_ID}}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: hello-world
+      app: hello-world-{{CASE_ID}}
   template:
     metadata:
       labels:
-        app: hello-world
+        app: hello-world-{{CASE_ID}}
     spec:
       imagePullSecrets:
         - name: ghcr-pull-secret
       containers:
-        - name: hello-world
+        - name: hello-world-{{CASE_ID}}
           image: {{IMAGE}}
           imagePullPolicy: Always
           ports:
@@ -35,11 +35,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: hello-world
+  name: hello-world-{{CASE_ID}}
   namespace: {{NAMESPACE}}
 spec:
   selector:
-    app: hello-world
+    app: hello-world-{{CASE_ID}}
   ports:
     - name: http
       port: 80
