@@ -30,7 +30,11 @@ jobs:
         run: |
           set -euo pipefail
 
-          ref_name="${{ github.event.ref }}"
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=${{ github.event.ref }}" >> "$GITHUB_OUTPUT"
+          fi
 
           if [[ "$ref_name" =~ ^([0-9]+)-.*$ ]]; then
             stack="staging-${BASH_REMATCH[1]}"
