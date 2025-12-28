@@ -98,7 +98,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          pulumi -C infra stack rm --yes "${PULUMI_ORG}/${STACK}"
+          pulumi -C infra stack rm --yes "${ORG}/${STACK}"
         env:
           ORG: ${{ vars.PULUMI_ORG }}
           STACK: ${{ steps.stack.outputs.stack }}
