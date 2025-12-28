@@ -1,4 +1,6 @@
-name: Destroy Preview Stack (Pulumi)
+name: Destroy Preview Stack
+run-name: >
+  Destroying ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.event.ref }}
 
 on:
   delete:
@@ -18,6 +20,8 @@ permissions:
 jobs:
   destroy:
     runs-on: ubuntu-latest
+    outputs:
+      stack: ${{ steps.stack.outputs.stack }}
     if: >
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'delete' && github.event.ref_type == 'branch')
