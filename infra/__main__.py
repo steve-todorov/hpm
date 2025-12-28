@@ -12,6 +12,7 @@ import pulumi_github as github
 # Convention: stack name == environment name == image tag
 stack = pulumi.get_stack()
 environment = stack
+cfg = pulumi.Config()
 
 # "kept at all cost"
 is_critical = environment in ("staging-main", "production")
@@ -34,15 +35,16 @@ ns = k8s.core.v1.Namespace(
 )
 
 # 1) Manage GitHub Environment (created/destroyed with the stack)
+gh_env_token = os.getenv("GITHUB_ENV_TOKEN") or cfg.require_secret("ghEnvironmentToken")
+gh_provider = github.Provider("gh_repo", owner=owner, token=gh_env_token)
 gh_env = github.RepositoryEnvironment(
     f"gh-env-{environment}",
     environment=environment,
     repository=repo,
-    opts=ResourceOptions(protect=is_critical),
+    opts=ResourceOptions(provider=gh_provider, protect=is_critical),
 )
 
 # 2) Create GHCR imagePull Secret in the namespace
-cfg = pulumi.Config()
 ghcr_username = cfg.get("ghcrUsername") or owner
 ghcr_token = cfg.require_secret("ghcrToken")  # store with: pulumi config set --secret ghcrToken ...
 

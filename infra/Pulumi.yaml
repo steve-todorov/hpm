@@ -7,5 +7,9 @@ config:
     type: string
     secret: true
     description: GHCR pull token used in k8s (<PAT_with_read:packages>)
+  ghEnvironmentToken:
+    type: string
+    secret: true
+    description: GH Token to allow creating environments.
 environment:
   - steve-todorov__hpm/common

@@ -46,7 +46,9 @@ Repo Secrets:
      pulumiConfig:
        ghcrUsername: steve-todorov
        ghcrToken:
-         fn::secret: YOUR_TOKEN_HERE
+         fn::secret: YOUR_TOKEN_HERE (read_packages)
+       gh_env_token:
+         fn::secret: YOUR_TOKEN_HERE 
    pulumi -C infra stack select --create "steve-todorov/steve-todorov__hpm/staging-main"
    pulumi -C infra config env add --yes "steve-todorov__hpm/common"
    pulumi -C infra up
