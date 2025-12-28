@@ -1,5 +1,6 @@
 # hello-world (Pulumi + K8s + GHCR)
 
+
 What it does:
 - App: Python HTTP server on `:8080`, returns `Hello from ${ENVIRONMENT}`.
 - Image: built/pushed to GHCR as `ghcr.io/steve-todorov/hpm:<environment>`.
