@@ -42,7 +42,8 @@ jobs:
             echo "skip=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-
+          
+          echo "case_id=$case_id" >> "$GITHUB_OUTPUT"
           echo "stack=$stack" >> "$GITHUB_OUTPUT"
           echo "environment=$stack" >> "$GITHUB_OUTPUT"
 
