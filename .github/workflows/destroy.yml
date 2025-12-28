@@ -31,9 +31,9 @@ jobs:
           set -euo pipefail
 
           if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
-            echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
+            ref_name="${{ inputs.ref }}"
           else
-            echo "ref=${{ github.event.ref }}" >> "$GITHUB_OUTPUT"
+            ref_name="${{ github.event.ref }}"
           fi
 
           if [[ "$ref_name" =~ ^([0-9]+)-.*$ ]]; then
