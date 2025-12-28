@@ -56,32 +56,29 @@ jobs:
         env:
           KUBECONFIG_CONTENT: ${{ secrets.KUBECONFIG }}
 
-      - name: Install Pulumi CLI
+      - uses: pulumi/auth-actions@v1
         if: steps.stack.outputs.skip != 'true'
-        uses: pulumi/actions@v6
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+        with:
+          organization: ${{ vars.PULUMI_ORG }}
+          requested-token-type: urn:pulumi:token-type:access_token:personal
+          scope: user:steve-todorov
 
-      - name: Destroy stack resources
+      - name: "[pulumi] Destroy stack resources"
         if: steps.stack.outputs.skip != 'true'
         uses: pulumi/actions@v6
         with:
           command: destroy
           work-dir: infra
-          stack-name: ${{ vars.PULUMI_ORG }}/${{ steps.stack.outputs.stack }}
+          stack-name: ${{ vars.PULUMI_ORG }}/${{ vars.PULUMI_PROJECT }}/${{ steps.stack.outputs.stack }}
         env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           GITHUB_OWNER: ${{ github.repository_owner }}
-          GITHUB_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
 
       - name: Remove stack state
         if: steps.stack.outputs.skip != 'true'
         shell: bash
         run: |
           set -euo pipefail
-          pulumi login
           pulumi -C infra stack rm --yes "${PULUMI_ORG}/${STACK}"
         env:
-          PULUMI_ORG: ${{ vars.PULUMI_ORG }}
+          ORG: ${{ vars.PULUMI_ORG }}
           STACK: ${{ steps.stack.outputs.stack }}
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
