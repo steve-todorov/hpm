@@ -6,7 +6,7 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello-world-{{CASE_ID}}
+  name: "hello-world-{{CASE_ID}}"
   namespace: {{NAMESPACE}}
   labels:
     app: hello-world-{{CASE_ID}}

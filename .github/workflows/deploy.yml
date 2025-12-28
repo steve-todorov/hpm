@@ -113,7 +113,6 @@ jobs:
         env:
           # pulumi-github provider auth
           GITHUB_OWNER: ${{ github.repository_owner }}
-          GITHUB_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
         with:
           command: preview
           work-dir: infra
@@ -128,7 +127,6 @@ jobs:
         env:
           # pulumi-github provider auth
           GITHUB_OWNER: ${{ github.repository_owner }}
-          GITHUB_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
         with:
           command: up
           work-dir: infra
