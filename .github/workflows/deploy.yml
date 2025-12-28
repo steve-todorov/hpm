@@ -103,7 +103,7 @@ jobs:
           environment:
             - ${PROJECT}/common
           config:
-            case_id: ${{ steps.stack.outputs.case_id }}
+            case_id: "${{ steps.stack.outputs.case_id }}"
           EOF
           cat infra/Pulumi.${STACK}.yaml
 

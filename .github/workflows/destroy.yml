@@ -24,6 +24,7 @@ jobs:
 
           if [[ "$ref_name" =~ ^([0-9]+)-.*$ ]]; then
             stack="staging-${BASH_REMATCH[1]}"
+            case_id="${BASH_REMATCH[1]}"
           else
             echo "skip=true" >> "$GITHUB_OUTPUT"
             exit 0
@@ -35,6 +36,7 @@ jobs:
             exit 0
           fi
 
+          echo "case_id=$case_id" >> "$GITHUB_OUTPUT"
           echo "stack=$stack" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-python@v5
