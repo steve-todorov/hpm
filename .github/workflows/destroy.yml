@@ -2,6 +2,7 @@ name: Destroy Preview Stack (Pulumi)
 
 on:
   delete:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -90,6 +91,7 @@ jobs:
           command: destroy
           work-dir: infra
           stack-name: ${{ vars.PULUMI_ORG }}/${{ vars.PULUMI_PROJECT }}/${{ steps.stack.outputs.stack }}
+          comment-on-summary: true
         env:
           GITHUB_OWNER: ${{ github.repository_owner }}
 
