@@ -21,7 +21,6 @@ Repo Variable:
 Repo Secrets:
 - `PULUMI_ACCESS_TOKEN` = Pulumi Cloud access token
 - `KUBECONFIG` = kubeconfig file contents for the target cluster
-- `GH_ADMIN_TOKEN` = GitHub token for Pulumi GitHub provider (PAT typically needs `repo` scope for env APIs)
 
 ## Local run
 1) [Github Container Registry Login](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic)

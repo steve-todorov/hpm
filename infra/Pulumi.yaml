@@ -7,3 +7,5 @@ config:
     type: string
     secret: true
     description: GHCR pull token used in k8s (<PAT_with_read:packages>)
+environment:
+  - steve-todorov__hpm/common
