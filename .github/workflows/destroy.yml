@@ -67,6 +67,22 @@ jobs:
           requested-token-type: urn:pulumi:token-type:access_token:personal
           scope: user:steve-todorov
 
+      - name: "[pulumi] environment setup"
+        if: steps.stack.outputs.skip != 'true'
+        shell: bash
+        env:
+          STACK: ${{ steps.stack.outputs.stack }}
+          ORG: ${{ vars.PULUMI_ORG }}
+          PROJECT: ${{ vars.PULUMI_PROJECT }}
+        run: |
+          cat > "infra/Pulumi.${STACK}.yaml" <<EOF
+          environment:
+            - ${PROJECT}/common
+          config:
+            case_id: "${{ steps.stack.outputs.case_id }}"
+          EOF
+          cat infra/Pulumi.${STACK}.yaml
+
       - name: "[pulumi] Destroy stack resources"
         if: steps.stack.outputs.skip != 'true'
         uses: pulumi/actions@v6
